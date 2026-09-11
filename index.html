@@ -11,45 +11,37 @@ iframe{display:block;width:100%;height:100%;border:0}
 </head>
 <body>
 <iframe id="site" src="riciclean_reservation_v2_photos.html" title="Riciclean"></iframe>
-<iframe id="sendFrame" name="sendFrame" style="display:none"></iframe>
 
 <script>
 const site = document.getElementById('site');
 
 site.addEventListener('load', function () {
   const doc = site.contentDocument;
-  const form = doc && doc.getElementById('quoteForm');
-  if (!form || form.dataset.emailReady) return;
+  const oldForm = doc && doc.getElementById('quoteForm');
+  if (!oldForm || oldForm.dataset.emailReady) return;
 
+  // Remplace le formulaire original pour retirer son ancien script
+  // qui affichait seulement le message de démonstration.
+  const form = oldForm.cloneNode(true);
+  oldForm.replaceWith(form);
   form.dataset.emailReady = '1';
-  form.setAttribute('method', 'POST');
-  form.setAttribute('action', 'https://formsubmit.co/Riciclean@gmail.com');
-  form.setAttribute('enctype', 'multipart/form-data');
-  form.setAttribute('target', 'sendFrame');
 
-  const fields = {
-    name: 'name',
-    phone: 'phone',
-    email: 'email',
-    address: 'address',
-    type: 'type',
-    date: 'date',
-    details: 'details',
-    photos: 'photos'
-  };
+  // FormSubmit AJAX : reste sur la page et renvoie une réponse JSON.
+  const endpoint = 'https://formsubmit.co/ajax/Riciclean@gmail.com';
 
-  Object.keys(fields).forEach(function(id){
+  // Tous les champs doivent avoir un attribut name pour être transmis.
+  ['name','phone','email','address','type','date','details','photos'].forEach(function(id){
     const el = doc.getElementById(id);
-    if (el) el.setAttribute('name', fields[id]);
+    if (el) el.name = id;
   });
 
-  const hidden = [
-    ['_subject', 'Nouvelle demande de devis Riciclean'],
-    ['_template', 'table'],
-    ['_url', 'https://riciclean.github.io/Riciclean/']
-  ];
-
-  hidden.forEach(function(pair){
+  // Paramètres FormSubmit.
+  [
+    ['_subject','Nouvelle demande de devis Riciclean'],
+    ['_template','table'],
+    ['_captcha','false'],
+    ['_url','https://riciclean.github.io/Riciclean/']
+  ].forEach(function(pair){
     const input = doc.createElement('input');
     input.type = 'hidden';
     input.name = pair[0];
@@ -57,14 +49,61 @@ site.addEventListener('load', function () {
     form.appendChild(input);
   });
 
-  form.addEventListener('submit', function(){
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+
+    const button = form.querySelector('button[type="submit"]');
     const success = doc.getElementById('success');
+    const originalText = button ? button.textContent : '';
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Envoi en cours...';
+    }
+
     if (success) {
-      success.innerHTML = 'Merci ! Votre demande a bien été envoyée à Riciclean. Nous vous recontacterons rapidement.';
-      success.style.display = 'block';
-      setTimeout(function(){
-        success.scrollIntoView({behavior:'smooth', block:'center'});
-      }, 100);
+      success.style.display = 'none';
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Erreur lors de l’envoi');
+      }
+
+      if (success) {
+        success.textContent = 'Merci ! Votre demande a bien été envoyée à Riciclean. Nous vous recontacterons rapidement.';
+        success.style.display = 'block';
+        setTimeout(function(){
+          success.scrollIntoView({behavior:'smooth', block:'center'});
+        }, 100);
+      }
+
+      form.reset();
+
+    } catch (error) {
+      if (success) {
+        success.textContent = 'Impossible d’envoyer la demande pour le moment. Vérifiez votre connexion puis réessayez.';
+        success.style.display = 'block';
+        setTimeout(function(){
+          success.scrollIntoView({behavior:'smooth', block:'center'});
+        }, 100);
+      }
+      console.error('FormSubmit:', error);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
     }
   });
 });
