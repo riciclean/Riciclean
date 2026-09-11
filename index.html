@@ -7,68 +7,55 @@
 <style>
 html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}
 iframe{display:block;width:100%;height:100%;border:0}
-#submitFrame{display:none}
 </style>
 </head>
 <body>
 <iframe id="site" src="riciclean_reservation_v2_photos.html" title="Riciclean"></iframe>
-<iframe id="submitFrame" name="submitFrame" title="Envoi"></iframe>
-
+<iframe id="sendFrame" name="sendFrame" style="display:none"></iframe>
 <script>
-const site = document.getElementById('site');
+const site=document.getElementById('site');
 
-site.addEventListener('load', function () {
-  const doc = site.contentDocument;
-  const oldForm = doc && doc.getElementById('quoteForm');
-  if (!oldForm || oldForm.dataset.emailReady) return;
+site.addEventListener('load',function(){
+  const doc=site.contentDocument;
+  const oldForm=doc&&doc.getElementById('quoteForm');
+  if(!oldForm||oldForm.dataset.emailReady)return;
 
-  // On remplace le formulaire original afin de supprimer son ancien
-  // gestionnaire qui bloquait l'envoi.
-  const form = oldForm.cloneNode(true);
+  // Clone/remplace le formulaire pour supprimer l'ancien submit
+  // qui bloquait l'envoi réel vers FormSubmit.
+  const form=oldForm.cloneNode(true);
   oldForm.replaceWith(form);
-  form.dataset.emailReady = '1';
+  form.dataset.emailReady='1';
 
-  // Envoi HTML natif FormSubmit : cette méthode est officiellement
-  // compatible avec les pièces jointes multipart/form-data.
-  form.method = 'POST';
-  form.action = 'https://formsubmit.co/Riciclean@gmail.com';
-  form.enctype = 'multipart/form-data';
-  form.target = 'submitFrame';
+  form.method='POST';
+  form.action='https://formsubmit.co/Riciclean@gmail.com';
+  form.enctype='multipart/form-data';
+  form.target='sendFrame';
 
-  // FormSubmit exige des attributs name sur les champs.
   ['name','phone','email','address','type','date','details','photos'].forEach(function(id){
-    const el = doc.getElementById(id);
-    if (el) el.name = id;
+    const el=doc.getElementById(id);
+    if(el) el.name=id;
   });
 
   [
     ['_subject','Nouvelle demande de devis Riciclean'],
     ['_template','table'],
-    ['_captcha','false'],
     ['_url','https://riciclean.github.io/Riciclean/']
   ].forEach(function(pair){
-    const input = doc.createElement('input');
-    input.type = 'hidden';
-    input.name = pair[0];
-    input.value = pair[1];
+    const input=doc.createElement('input');
+    input.type='hidden';
+    input.name=pair[0];
+    input.value=pair[1];
     form.appendChild(input);
   });
 
-  form.addEventListener('submit', function(){
-    const success = doc.getElementById('success');
-    const button = form.querySelector('button[type="submit"]');
-
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Envoi en cours...';
-    }
-
-    if (success) {
-      success.textContent = 'Votre demande est en cours d’envoi à Riciclean. Vous recevrez une confirmation prochainement.';
-      success.style.display = 'block';
+  form.addEventListener('submit',function(){
+    const success=doc.getElementById('success');
+    if(success){
+      success.textContent='Merci ! Votre demande a bien été envoyée à Riciclean. Nous vous recontacterons rapidement.';
+      success.style.display='block';
       setTimeout(function(){
-        success.scrollIntoView({behavior:'smooth', block:'center'});
-      }, 100);
+        success.scrollIntoView({behavior:'smooth',block:'center'});
+      },100);
     }
   });
 });
