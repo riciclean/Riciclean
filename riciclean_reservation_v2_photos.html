@@ -915,6 +915,19 @@ label,.quick-option,.field-label{letter-spacing:.15px}
 }
 </style>
 
+
+<style>
+/* FINAL INTERACTION FIX — quote controls always clickable */
+.quote-builder, .quick-options, .quick-option, #quoteItems, .quote-item, .qty-control, .qty-btn, .qty-value, .add-item, .special-service, .special-service button {
+  position:relative !important;
+  z-index:20 !important;
+  pointer-events:auto !important;
+}
+.quick-option, .qty-btn, .special-service button, .add-item {
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:rgba(21,151,229,.18);
+}
+</style>
 </head>
 <body>
 <nav class="riciclean-nav">
