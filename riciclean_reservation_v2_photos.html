@@ -49,23 +49,27 @@ footer{background:var(--navy);color:#dbeafe;text-align:center;padding:28px 18px}
 <h2>Demandez votre devis</h2>
 <p class="sub">Remplissez le formulaire et Riciclean vous recontactera.</p>
 <div class="form-card">
-<form id="quoteForm">
+<form id="quoteForm" action="https://formsubmit.co/Riciclean@gmail.com" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="_subject" value="Nouvelle demande de devis Riciclean">
+<input type="hidden" name="_template" value="table">
+<input type="hidden" name="_captcha" value="false">
 <div class="grid">
-<div><label for="name">Nom / entreprise *</label><input id="name" required></div>
-<div><label for="phone">Téléphone *</label><input id="phone" type="tel" required></div>
+<div><label for="name">Nom / entreprise *</label><input id="name" name="name" required></div>
+<div><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" required></div>
 </div>
-<label for="email">E-mail *</label><input id="email" type="email" required>
-<label for="address">Adresse du chantier *</label><input id="address" placeholder="Rue, numéro, ville" required>
+<label for="email">E-mail *</label><input id="email" name="email" type="email" required>
+<input type="hidden" name="_replyto" id="replyto">
+<label for="address">Adresse du chantier *</label><input id="address" name="address" placeholder="Rue, numéro, ville" required>
 <div class="grid">
-<div><label for="type">Prestation *</label><select id="type" required>
+<div><label for="type">Prestation *</label><select id="type" name="type" required>
 <option value="">Choisir</option><option>Vitres intérieur</option><option>Vitres extérieur</option><option>Intérieur + extérieur</option><option>Entretien régulier</option><option>Autre</option>
 </select></div>
-<div><label for="date">Date souhaitée</label><input id="date" type="date"></div>
+<div><label for="date">Date souhaitée</label><input id="date" name="date" type="date"></div>
 </div>
-<label for="details">Informations complémentaires</label><textarea id="details" placeholder="Nombre de fenêtres, devanture, particularités..."></textarea>
-<label for="photos">Photos (facultatif)</label><input id="photos" type="file" accept="image/*" multiple>
+<label for="details">Informations complémentaires</label><textarea id="details" name="details" placeholder="Nombre de fenêtres, devanture, particularités..."></textarea>
+<label for="photos">Photos (facultatif)</label><input id="photos" name="photos" type="file" accept="image/*" multiple>
 <button type="submit">Envoyer ma demande</button>
-<div class="success" id="success">Merci ! Votre demande a bien été préparée. Pour l'instant, cette V1 est une démonstration : la connexion automatique à la boîte mail sera ajoutée ensuite.</div>
+<div class="success" id="success" style="display:none">Merci ! Votre demande a bien été envoyée à Riciclean. Nous vous recontacterons rapidement.</div>
 </form>
 <div class="contact">
 <a href="tel:+32471232502">📞 Appeler Riciclean</a>
@@ -75,12 +79,11 @@ footer{background:var(--navy);color:#dbeafe;text-align:center;padding:28px 18px}
 </section>
 
 <footer><strong>RICICLEAN</strong><br>Nettoyage de vitres professionnel<br>0471 23 25 02 · Riciclean@gmail.com</footer>
+
 <script>
-document.getElementById('quoteForm').addEventListener('submit', function(e){
- e.preventDefault();
- document.getElementById('success').style.display='block';
- document.getElementById('success').scrollIntoView({behavior:'smooth',block:'center'});
-});
+const emailField=document.getElementById('email');
+const replyField=document.getElementById('replyto');
+if(emailField&&replyField){emailField.addEventListener('input',function(){replyField.value=emailField.value;});}
 </script>
 </body>
 </html>
