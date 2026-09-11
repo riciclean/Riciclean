@@ -1,46 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Riciclean — Réservation</title>
-<style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}
-iframe{display:block;width:100%;height:100%;border:0}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riciclean – Nettoyage de vitres</title>
+
+  <script>
+    window.location.replace("Riciclean_SITE_FINAL_READY_V3.html");
+  </script>
 </head>
+
 <body>
-<iframe id="src"Riciclean_SITE_FINAL_READY_V3.html title="Riciclean"></iframe>
-<iframe id="sendFrame" name="sendFrame" style="display:none"></iframe>
-<script>
-const site=document.getElementById('site');
+  <p>Chargement du site Riciclean…</p>
 
-site.addEventListener('load',function(){
-  const doc=site.contentDocument;
-  const oldForm=doc&&doc.getElementById('quoteForm');
-  if(!oldForm||oldForm.dataset.emailReady)return;
-
-  // Remplace le formulaire afin de retirer son ancien submit
-  // qui bloquait l'envoi réel.
-  const form=oldForm.cloneNode(true);
-  oldForm.replaceWith(form);
-  form.dataset.emailReady='1';
-
-  form.method='POST';
-  form.action='https://formsubmit.co/Riciclean@gmail.com';
-  form.enctype='multipart/form-data';
-  form.target='sendFrame';
-
-  ['name','phone','email','address','type','date','details','photos'].forEach(function(id){
-    const el=doc.getElementById(id);
-    if(el) el.name=id;
-  });
-
-  [
-    ['_subject','Nouvelle demande de devis Riciclean'],
-    ['_template','table'],
-    ['_url','https://riciclean.github.io/Riciclean/']
-  ].forEach(function(pair){
+  <p>
+    <a href="Riciclean_SITE_FINAL_READY_V3.html">
+      Ouvrir le site Riciclean
+    </a>
+  </p>
+</body>
+</html>
     const input=doc.createElement('input');
     input.type='hidden';
     input.name=pair[0];
