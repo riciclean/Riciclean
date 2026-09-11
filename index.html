@@ -1026,17 +1026,16 @@ label,.quick-option,.field-label{letter-spacing:.15px}
   <div class="form-step"><span class="step-number">2</span>Vos vitrages</div>
   <div class="form-step"><span class="step-number">3</span>Envoi du devis</div>
 </div>
-<form id="quoteForm" action="https://formsubmit.co/Riciputo-nicolas@hotmail.com" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="_subject" value="TEST RICICLEAN — Nouvelle demande de devis">
-<input type="hidden" name="_cc" value="Riciclean@gmail.com">
-<input type="hidden" name="_template" value="table">
-
+<form id="quoteForm" action="https://api.web3forms.com/submit" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="access_key" value="90510d61-26ef-4c90-b4c1-e2eec8805c16">
+<input type="hidden" name="subject" value="Nouvelle demande de devis Riciclean">
+<input type="hidden" name="from_name" value="Riciclean — Demande de devis">
 <div class="grid">
 <div><label for="name">Nom / entreprise *</label><input id="name" name="name" required></div>
 <div><label for="phone">Téléphone *</label><input id="phone" name="phone" type="tel" required></div>
 </div>
 <label for="email">E-mail *</label><input id="email" name="email" type="email" required>
-<input type="hidden" name="_replyto" id="replyto">
+<input type="hidden" name="replyto" id="replyto">
 <label for="address">Adresse du chantier *</label><input id="address" name="address" placeholder="Rue, numéro, ville" required>
 
 <div class="grid">
