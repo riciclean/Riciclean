@@ -194,6 +194,9 @@ footer strong{color:white}
   width:48px;text-align:center;font-weight:900;font-size:16px;
   border:1px solid #ccd8e5;border-radius:10px;padding:11px 4px;background:#fff
 }
+.qty-value{cursor:pointer;border:0!important;background:#eef6fb!important;color:#07111f!important;font-weight:900!important;font-size:16px!important;min-width:42px!important;height:42px!important;padding:0 8px!important;border-radius:10px!important}
+.qty-help{font-size:10px;color:#667085;margin-top:4px;text-align:center;white-space:nowrap}
+
 .remove-item{
   margin-top:10px!important;width:auto!important;padding:8px 12px!important;
   background:#fff!important;color:#b42318!important;border:1px solid #f0c9c5!important;
@@ -1039,7 +1042,7 @@ label,.quick-option,.field-label{letter-spacing:.15px}
     Ces informations nous permettront de préparer un devis au plus proche de votre demande.
   </p>
   
-<div class="quick-title">Ajout rapide</div>
+<div class="quick-title">Choisir le type de vitrage</div>
 <div class="quick-options" id="quickOptions">
   <button type="button" class="quick-option" data-quick="Fenêtre simple">Fenêtre simple</button>
   <button type="button" class="quick-option" data-quick="Fenêtre double">Fenêtre double</button>
@@ -1074,10 +1077,11 @@ label,.quick-option,.field-label{letter-spacing:.15px}
     <strong>CLEAN10</strong>.
   </div>
   <div style="margin-top:12px;">
-    <label for="promo_code" style="margin-top:0;">Code promotionnel (facultatif)</label>
+    <label for="promo_code" style="margin-top:0;">Code promotionnel</label>
     <input id="promo_code" name="promo_code" type="text"
-           placeholder="Entrez votre code promotionnel"
+           placeholder="Entrez votre code CLEAN10"
            autocomplete="off" autocapitalize="characters">
+    <div id="promoStatus" style="display:none;margin-top:8px;padding:10px 12px;border-radius:10px;background:#ecfdf3;border:1px solid #abefc6;color:#067647;font-weight:800;font-size:13px;">✓ Votre code de 10% est activé et sera déduit du montant de votre facture.</div>
   </div>
   <input type="hidden" name="discount" id="discount" value="">
 </div>
@@ -1139,11 +1143,12 @@ if(emailField&&replyField){emailField.addEventListener('input',function(){replyF
         </div>
         <div>
           <label class="field-label">Quantité</label>
-          <div class="qty-control">
-            <button type="button" class="qty-btn minus">−</button>
-            <div class="qty-value">1</div>
-            <button type="button" class="qty-btn plus">+</button>
+          <div class="qty-control" aria-label="Choisir la quantité">
+            <button type="button" class="qty-btn minus" aria-label="Diminuer la quantité">−</button>
+            <button type="button" class="qty-value" aria-label="Quantité actuelle">1</button>
+            <button type="button" class="qty-btn plus" aria-label="Augmenter la quantité">+</button>
           </div>
+          <div class="qty-help">1, 2, 3… fenêtres</div>
         </div>
         <div>
           <label class="field-label">Largeur (cm)</label>
@@ -1171,14 +1176,16 @@ if(emailField&&replyField){emailField.addEventListener('input',function(){replyF
       <button type="button" class="remove-item">Supprimer cet élément</button>
     `;
 
-    row.querySelector('.minus').addEventListener('click', () => {
+    function setQty(delta){
       const value = row.querySelector('.qty-value');
-      value.textContent = Math.max(1, parseInt(value.textContent,10)-1);
+      value.textContent = Math.min(99, Math.max(1, parseInt(value.textContent,10) + delta));
       updateSummary();
-    });
-    row.querySelector('.plus').addEventListener('click', () => {
-      const value = row.querySelector('.qty-value');
-      value.textContent = Math.min(99, parseInt(value.textContent,10)+1);
+    }
+    row.querySelector('.minus').addEventListener('click', () => setQty(-1));
+    row.querySelector('.plus').addEventListener('click', () => setQty(1));
+    row.querySelector('.qty-value').addEventListener('click', () => {
+      const current = parseInt(row.querySelector('.qty-value').textContent,10);
+      row.querySelector('.qty-value').textContent = current >= 3 ? 1 : current + 1;
       updateSummary();
     });
     row.querySelector('.remove-item').addEventListener('click', () => {
@@ -1250,40 +1257,57 @@ if(emailField&&replyField){emailField.addEventListener('input',function(){replyF
   const form = document.getElementById('quoteForm');
   const codeField = document.getElementById('promo_code');
   const discount = document.getElementById('discount');
-  if(!form || !codeField || !discount) return;
+  const subject = form ? form.querySelector('input[name="_subject"]') : null;
+  const status = document.getElementById('promoStatus');
+  if(!form || !codeField || !discount || !status) return;
 
-  form.addEventListener('submit', function(){
+  function updatePromo(){
     const code = codeField.value.trim().toUpperCase();
-    discount.value = code === 'CLEAN10'
-      ? '10% de réduction - Première prestation - Code CLEAN10'
-      : '';
-  });
+    if(code === 'CLEAN10'){
+      status.style.display = 'block';
+      discount.value = 'OUI — 10% de réduction sur la première prestation — Code CLEAN10';
+      if(subject) subject.value = 'Nouvelle demande de devis Riciclean — CLEAN10 (-10%)';
+    }else{
+      status.style.display = 'none';
+      discount.value = '';
+      if(subject) subject.value = 'Nouvelle demande de devis Riciclean';
+    }
+  }
+
+  codeField.addEventListener('input', updatePromo);
+  codeField.addEventListener('change', updatePromo);
+  form.addEventListener('submit', updatePromo);
+  updatePromo();
 })();
 </script>
 
 
 
 <div class="mobile-actions" aria-label="Actions rapides">
-  <a href="tel:+32466902967">📞 Appeler</a>
+  <a href="tel:+32471232502">📞 Appeler</a>
   <a class="primary" href="#devis">🧾 Demander un devis</a>
 </div>
 
 <script>
 (function(){
   const quick = document.getElementById('quickOptions');
-  if(!quick) return;
+  const add = document.getElementById('addQuoteItem');
+  if(!quick || !add) return;
   quick.querySelectorAll('[data-quick]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const target = document.querySelector('#addQuoteItem');
-      if(!target) return;
-      target.click();
-      const rows = document.querySelectorAll('.quote-item');
-      const last = rows[rows.length-1];
-      if(last){
-        const select = last.querySelector('.q-type');
-        if(select){ select.value = btn.dataset.quick; select.dispatchEvent(new Event('change',{bubbles:true})); }
-        last.scrollIntoView({behavior:'smooth',block:'center'});
+      let rows = [...document.querySelectorAll('#quoteItems .quote-item')];
+      let row = rows.length === 1 && !rows[0].querySelector('.q-width').value && !rows[0].querySelector('.q-height').value && rows[0].querySelector('.qty-value').textContent === '1' ? rows[0] : null;
+      if(!row){
+        add.click();
+        rows = [...document.querySelectorAll('#quoteItems .quote-item')];
+        row = rows[rows.length-1];
       }
+      const select = row && row.querySelector('.q-type');
+      if(select){
+        select.value = btn.dataset.quick;
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+      row?.scrollIntoView({behavior:'smooth',block:'center'});
     });
   });
 })();
@@ -1297,20 +1321,20 @@ if(emailField&&replyField){emailField.addEventListener('input',function(){replyF
   if(!btn || !add) return;
   btn.addEventListener('click', function(){
     add.click();
-    const rows = document.querySelectorAll('.quote-item');
+    const rows = [...document.querySelectorAll('#quoteItems .quote-item')];
     const last = rows[rows.length-1];
-    if(last){
-      const select = last.querySelector('.q-type');
-      if(select){
-        const option = document.createElement('option');
-        option.textContent = 'Véranda';
-        option.value = 'Véranda';
-        select.appendChild(option);
-        select.value = 'Véranda';
-        select.dispatchEvent(new Event('change',{bubbles:true}));
+    if(!last) return;
+    const select = last.querySelector('.q-type');
+    if(select){
+      let option = [...select.options].find(o => o.value === 'Véranda');
+      if(!option){
+        option = new Option('Véranda','Véranda');
+        select.add(option);
       }
-      last.scrollIntoView({behavior:'smooth',block:'center'});
+      select.value = 'Véranda';
+      select.dispatchEvent(new Event('change',{bubbles:true}));
     }
+    last.scrollIntoView({behavior:'smooth',block:'center'});
   });
 })();
 </script>
