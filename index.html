@@ -20,8 +20,8 @@ site.addEventListener('load',function(){
   const oldForm=doc&&doc.getElementById('quoteForm');
   if(!oldForm||oldForm.dataset.emailReady)return;
 
-  // Clone/remplace le formulaire pour supprimer l'ancien submit
-  // qui bloquait l'envoi réel vers FormSubmit.
+  // Remplace le formulaire afin de retirer son ancien submit
+  // qui bloquait l'envoi réel.
   const form=oldForm.cloneNode(true);
   oldForm.replaceWith(form);
   form.dataset.emailReady='1';
